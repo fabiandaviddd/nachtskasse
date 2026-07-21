@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#14110F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Nachtkasse</title>
+<style>
+  :root{
+    --bg:#14110F; --surface:#1E1A17; --surface2:#26211D; --line:#332C26;
+    --ink:#F2EBE2; --muted:#8E857B; --faint:#5C554D;
+    --ok:#7FB069; --warn:#E6A756; --over:#E4572E;
+    --num:ui-monospace,"SF Mono","Roboto Mono",Menlo,monospace;
+    --txt:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{background:var(--bg);color:var(--ink);font-family:var(--txt);
+    padding:calc(14px + env(safe-area-inset-top)) 0 calc(30px + env(safe-area-inset-bottom));
+    max-width:520px;margin:0 auto;min-height:100vh}
+  header{display:flex;justify-content:space-between;align-items:baseline;padding:8px 20px 4px}
+  .brand{font-size:.8rem;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .stand{font-family:var(--num);font-size:.72rem;color:var(--faint)}
+  .hero{padding:14px 20px 20px}
+  .hero-label{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .hero-num{font-family:var(--num);font-size:3.4rem;line-height:1;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .hero-num small{font-size:1.6rem;font-weight:500;color:var(--muted)}
+  .hero-sub{margin-top:9px;font-size:.85rem;color:var(--muted)}
+  .hero-daily{margin-top:4px;font-size:.78rem;color:var(--faint);font-family:var(--num)}
+  .hero-num.ok{color:var(--ok)} .hero-num.warn{color:var(--warn)} .hero-num.over{color:var(--over)}
+  .perf{height:14px;margin:0 20px;position:relative;overflow:hidden}
+  .perf::before{content:"";position:absolute;inset:6px 0 auto 0;border-top:2px dashed var(--line)}
+  .rows{padding:10px 12px 4px}
+  .row{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 14px 12px;margin:0 0 10px}
+  .row-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px}
+  .row-name{font-size:.95rem;font-weight:600}
+  .row-nums{font-family:var(--num);font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
+  .row-nums b{color:var(--ink);font-weight:600}
+  .bar{height:10px;border-radius:5px;background:var(--surface2);overflow:hidden}
+  .fill{height:100%;border-radius:5px;background:var(--ok);width:0;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+  .fill.warn{background:var(--warn)} .fill.over{background:var(--over)}
+  .row-foot{display:flex;justify-content:space-between;margin-top:7px;font-size:.72rem;color:var(--faint);font-family:var(--num)}
+  .st-over{color:var(--over);font-weight:700} .st-warn{color:var(--warn)}
+  .note{text-align:center;font-size:.72rem;color:var(--faint);padding:16px 30px 0;line-height:1.5}
+  .err{margin:40px 20px;text-align:center;color:var(--muted);font-size:.9rem;line-height:1.6}
+  @media(prefers-reduced-motion:reduce){.fill{transition:none}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Nachtkasse</div>
+  <div class="stand" id="stand"></div>
+</header>
+<div id="app"><div class="err">Lade Budgets…</div></div>
+
+<script>
+const fmt=n=>Math.round(n).toLocaleString('de-DE');
+function render(D){
+  const total=D.budgets.reduce((a,b)=>a+b.limit,0);
+  const spent=D.budgets.reduce((a,b)=>a+b.spent,0);
+  const remain=total-spent;
+  const cls=remain<0?'over':(spent>total*0.85?'warn':'ok');
+  document.getElementById('stand').textContent='Stand '+D.through;
+
+  // Tagesrate für "Rest" bis Monatsende
+  const parts=D.through.split('.'); // "20.07.2026"
+  const thruDay=+parts[0], mon=+parts[1], yr=+parts[2];
+  const dim=new Date(yr,mon,0).getDate();
+  const daysLeft=Math.max(dim-thruDay,0);
+  const rb=D.budgets.find(b=>b.id==='rest');
+  const rLeft=rb?rb.limit-rb.spent:0;
+  const daily=(rb&&daysLeft>0)?`<div class="hero-daily">≈ ${rLeft<0?'0':fmt(rLeft/daysLeft)} €/Tag für „Rest" · ${daysLeft} Tage bis Monatsende</div>`:'';
+
+  document.getElementById('app').innerHTML=`
+    <section class="hero">
+      <div class="hero-label">${D.month} · noch im Budget</div>
+      <div class="hero-num ${cls}">${remain<0?'−'+fmt(-remain):fmt(remain)}<small> €</small></div>
+      <div class="hero-sub">${fmt(spent)} € von ${fmt(total)} € ausgegeben</div>
+      ${daily}
+    </section>
+    <div class="perf"></div>
+    <section class="rows">
+      ${D.budgets.map(b=>{
+        const pct=Math.min(b.spent/b.limit*100,100), over=b.spent>b.limit, warn=!over&&b.spent>b.limit*0.8;
+        return `<div class="row">
+          <div class="row-top"><div class="row-name">${b.name}</div>
+            <div class="row-nums"><b>${fmt(b.spent)}</b> / ${fmt(b.limit)} €</div></div>
+          <div class="bar"><div class="fill ${over?'over':warn?'warn':''}" style="width:${pct}%"></div></div>
+          <div class="row-foot">
+            <span class="${over?'st-over':warn?'st-warn':''}">${over?('+'+fmt(b.spent-b.limit)+' € drüber'):(fmt(b.limit-b.spent)+' € frei')}</span>
+            <span>${Math.round(b.spent/b.limit*100)}%</span></div>
+        </div>`;
+      }).join('')}
+    </section>
+    <div class="note">Kontodaten bis ${D.through}. Bar Bezahltes ist nicht enthalten.<br>Aktualisiert sich nach jedem CSV-Upload im Claude-Projekt.</div>`;
+}
+fetch('./budget.json?t='+Date.now())
+  .then(r=>{ if(!r.ok) throw 0; return r.json(); })
+  .then(render)
+  .catch(()=>{ document.getElementById('app').innerHTML=
+    '<div class="err">Budgets konnten nicht geladen werden.<br>Netz prüfen und neu öffnen.</div>'; });
+</script>
+</body>
+</html>
