@@ -1,31 +1,25 @@
 {
- "updated": "2026-07-21",
+ "updated": "2026-07-22",
  "month": "Juli 2026",
- "through": "20.07.2026",
+ "through": "22.07.2026",
  "budgets": [
   {
    "id": "rest",
    "name": "Essen / Shopping / Rest",
-   "limit": 470,
-   "spent": 267.58
+   "limit": 485,
+   "spent": 193.94
   },
   {
    "id": "mob",
    "name": "Mobilität",
    "limit": 115,
-   "spent": 162.79
+   "spent": 334.83
   },
   {
    "id": "tabak",
    "name": "Tabak / Terea",
    "limit": 360,
    "spent": 136.74
-  },
-  {
-   "id": "liefer",
-   "name": "Lieferdienst",
-   "limit": 15,
-   "spent": 0
   }
  ]
 }
