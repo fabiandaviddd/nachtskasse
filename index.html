@@ -47,9 +47,11 @@
   .st-over{color:var(--over);font-weight:700} .st-warn{color:var(--warn)} .st-ok{color:var(--ok);font-weight:700}
   .note{text-align:center;font-size:.72rem;color:var(--faint);padding:18px 30px 0;line-height:1.5}
   .err{margin:40px 20px;text-align:center;color:var(--muted);font-size:.9rem;line-height:1.6}
-  .stale{margin:10px 12px 0;background:rgba(230,167,86,.12);border:1px solid var(--warn);
-    color:var(--warn);border-radius:12px;padding:11px 14px;font-size:.82rem;line-height:1.45;text-align:center}
-  .stale b{font-family:var(--num)}
+  .cd{margin:10px 12px 0;background:var(--surface);border:1px solid var(--line);color:var(--muted);
+    border-radius:12px;padding:10px 14px;font-size:.8rem;text-align:center}
+  .cd b{font-family:var(--num);color:var(--ink);font-variant-numeric:tabular-nums;font-size:.95rem}
+  .cd.due{background:rgba(230,167,86,.12);border-color:var(--warn);color:var(--warn)}
+  .cd.due b{color:var(--warn)}
   @media(prefers-reduced-motion:reduce){.fill{transition:none}}
 </style>
 </head>
@@ -132,13 +134,7 @@ function render(D){
       +'<div class="row-foot"><span class="'+dcls+'">'+(delta>=0?'+':'−')+fmt(Math.abs(delta))+' € seit Start</span>'
       +'<span>Ziel +'+fmt(w.pace)+' €/Monat</span></div></div></section>';
   }
-  var stale='';
-  var thruDate=new Date(yr,mon-1,thruDay,23,59);
-  var ageH=(Date.now()-thruDate.getTime())/36e5;
-  if(ageH>48){
-    var days=Math.floor(ageH/24);
-    stale='<div class="stale">⚠︎ Daten sind <b>'+days+' Tag'+(days===1?'':'e')+'</b> alt (Stand '+D.through+').<br>Neuen Auszug ins Claude-Projekt laden.</div>';
-  }
+  var stale=D.updatedAt?'<div class="cd" id="cd"></div>':'';
   const capped=(konto!==null&&konto<remain&&remain>0);
   const avail=capped?konto:remain;
   const heroLabel=capped?(D.month+' · verfügbar (Konto begrenzt)'):(D.month+' · noch im Budget');
@@ -165,9 +161,28 @@ function render(D){
     +'Aktualisiert sich nach jedem CSV-Upload im Claude-Projekt.</div>';
 }
 
+function startCountdown(updatedAt){
+  var el=document.getElementById('cd');
+  if(!el) return;
+  var deadline=new Date(updatedAt).getTime()+24*3600*1000;
+  function pad(n){return (n<10?'0':'')+n;}
+  function tick(){
+    var diff=deadline-Date.now();
+    if(diff>0){
+      var h=Math.floor(diff/36e5), m=Math.floor(diff%36e5/6e4), s=Math.floor(diff%6e4/1e3);
+      el.className='cd';
+      el.innerHTML='Nächste CSV in <b>'+pad(h)+':'+pad(m)+':'+pad(s)+'</b>';
+    }else{
+      var over=-diff, oh=Math.floor(over/36e5), om=Math.floor(over%36e5/6e4);
+      el.className='cd due';
+      el.innerHTML='⏰ CSV fällig · überfällig seit <b>'+oh+' h '+pad(om)+' min</b>';
+    }
+  }
+  tick(); setInterval(tick,1000);
+}
 fetch('./budget.json?t='+Date.now())
   .then(function(r){ if(!r.ok) throw 0; return r.json(); })
-  .then(render)
+  .then(function(D){ render(D); startCountdown(D.updatedAt); })
   .catch(function(){ document.getElementById('app').innerHTML=
     '<div class="err">Budgets konnten nicht geladen werden.<br>Netz prüfen und neu öffnen.</div>'; });
 </script>
