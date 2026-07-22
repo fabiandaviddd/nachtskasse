@@ -7,7 +7,7 @@
    "id": "rest",
    "name": "Essen / Shopping / Rest",
    "limit": 485,
-   "spent": 129.78
+   "spent": 125.52
   },
   {
    "id": "mob",
@@ -19,7 +19,7 @@
    "id": "tabak",
    "name": "Tabak / Terea",
    "limit": 360,
-   "spent": 167.94
+   "spent": 172.2
   }
  ]
 }
