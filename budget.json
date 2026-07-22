@@ -20,6 +20,27 @@
    "name": "Tabak / Terea",
    "limit": 360,
    "spent": 173.6
+  },
+  {
+   "id": "abo",
+   "name": "Abos",
+   "limit": 100,
+   "spent": 121.26,
+   "hero": false
+  }
+ ],
+ "goals": [
+  {
+   "id": "sparen",
+   "name": "Sparen (Trade Republic)",
+   "target": 300,
+   "done": -100.0
+  },
+  {
+   "id": "trinkgeld",
+   "name": "Trinkgeld eingezahlt",
+   "target": 1000,
+   "done": 170.0
   }
  ]
 }
