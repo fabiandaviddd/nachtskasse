@@ -11,7 +11,7 @@
   :root{
     --bg:#14110F; --surface:#1E1A17; --surface2:#26211D; --line:#332C26;
     --ink:#F2EBE2; --muted:#8E857B; --faint:#5C554D;
-    --ok:#7FB069; --warn:#E6A756; --over:#E4572E;
+    --ok:#7FB069; --warn:#E6A756; --over:#E4572E; --goal:#6BA8C4;
     --num:ui-monospace,"SF Mono","Roboto Mono",Menlo,monospace;
     --txt:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
   }
@@ -31,18 +31,21 @@
   .hero-num.ok{color:var(--ok)} .hero-num.warn{color:var(--warn)} .hero-num.over{color:var(--over)}
   .perf{height:14px;margin:0 20px;position:relative;overflow:hidden}
   .perf::before{content:"";position:absolute;inset:6px 0 auto 0;border-top:2px dashed var(--line)}
-  .rows{padding:10px 12px 4px}
+  .sect{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);padding:12px 20px 2px}
+  .rows{padding:8px 12px 0}
   .row{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 14px 12px;margin:0 0 10px}
+  .row.watch{opacity:.82}
   .row-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px}
   .row-name{font-size:.95rem;font-weight:600}
+  .row-name span{font-size:.66rem;color:var(--faint);font-weight:500;letter-spacing:.08em;margin-left:6px}
   .row-nums{font-family:var(--num);font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
   .row-nums b{color:var(--ink);font-weight:600}
   .bar{height:10px;border-radius:5px;background:var(--surface2);overflow:hidden}
   .fill{height:100%;border-radius:5px;background:var(--ok);width:0;transition:width .6s cubic-bezier(.2,.8,.2,1)}
-  .fill.warn{background:var(--warn)} .fill.over{background:var(--over)}
+  .fill.warn{background:var(--warn)} .fill.over{background:var(--over)} .fill.goal{background:var(--goal)}
   .row-foot{display:flex;justify-content:space-between;margin-top:7px;font-size:.72rem;color:var(--faint);font-family:var(--num)}
-  .st-over{color:var(--over);font-weight:700} .st-warn{color:var(--warn)}
-  .note{text-align:center;font-size:.72rem;color:var(--faint);padding:16px 30px 0;line-height:1.5}
+  .st-over{color:var(--over);font-weight:700} .st-warn{color:var(--warn)} .st-ok{color:var(--ok);font-weight:700}
+  .note{text-align:center;font-size:.72rem;color:var(--faint);padding:18px 30px 0;line-height:1.5}
   .err{margin:40px 20px;text-align:center;color:var(--muted);font-size:.9rem;line-height:1.6}
   @media(prefers-reduced-motion:reduce){.fill{transition:none}}
 </style>
@@ -56,49 +59,68 @@
 
 <script>
 const fmt=n=>Math.round(n).toLocaleString('de-DE');
+
+function budgetRow(b){
+  const pct=Math.min(b.spent/b.limit*100,100), over=b.spent>b.limit, warn=!over&&b.spent>b.limit*0.8;
+  return '<div class="row '+(b.hero===false?'watch':'')+'">'
+    +'<div class="row-top"><div class="row-name">'+b.name
+    +(b.hero===false?'<span>NUR BEOBACHTEN</span>':'')+'</div>'
+    +'<div class="row-nums"><b>'+fmt(b.spent)+'</b> / '+fmt(b.limit)+' €</div></div>'
+    +'<div class="bar"><div class="fill '+(over?'over':warn?'warn':'')+'" style="width:'+pct+'%"></div></div>'
+    +'<div class="row-foot"><span class="'+(over?'st-over':warn?'st-warn':'')+'">'
+    +(over?('+'+fmt(b.spent-b.limit)+' € drüber'):(fmt(b.limit-b.spent)+' € frei'))
+    +'</span><span>'+Math.round(b.spent/b.limit*100)+'%</span></div></div>';
+}
+
+function goalRow(g){
+  const done=Math.max(g.done,0);
+  const pct=Math.min(done/g.target*100,100);
+  const reached=g.done>=g.target, half=g.done>=g.target*0.5;
+  const cls=reached?'ok':(half?'goal':'over');
+  const foot=g.done<0
+    ? '<span class="st-over">'+fmt(-g.done)+' € entnommen</span>'
+    : (reached?'<span class="st-ok">Ziel erreicht</span>'
+      :'<span class="'+(half?'':'st-over')+'">noch '+fmt(g.target-g.done)+' € bis Ziel</span>');
+  return '<div class="row"><div class="row-top">'
+    +'<div class="row-name">'+g.name+'</div>'
+    +'<div class="row-nums"><b>'+fmt(g.done)+'</b> / '+fmt(g.target)+' €</div></div>'
+    +'<div class="bar"><div class="fill '+cls+'" style="width:'+pct+'%"></div></div>'
+    +'<div class="row-foot">'+foot+'<span>'+Math.round(g.done/g.target*100)+'%</span></div></div>';
+}
+
 function render(D){
-  const total=D.budgets.reduce((a,b)=>a+b.limit,0);
-  const spent=D.budgets.reduce((a,b)=>a+b.spent,0);
+  const hb=D.budgets.filter(function(b){return b.hero!==false;});
+  const total=hb.reduce(function(a,b){return a+b.limit;},0);
+  const spent=hb.reduce(function(a,b){return a+b.spent;},0);
   const remain=total-spent;
   const cls=remain<0?'over':(spent>total*0.85?'warn':'ok');
   document.getElementById('stand').textContent='Stand '+D.through;
 
-  // Tagesrate für "Rest" bis Monatsende
-  const parts=D.through.split('.'); // "20.07.2026"
-  const thruDay=+parts[0], mon=+parts[1], yr=+parts[2];
+  const p=D.through.split('.'), thruDay=+p[0], mon=+p[1], yr=+p[2];
   const dim=new Date(yr,mon,0).getDate();
   const daysLeft=Math.max(dim-thruDay,0);
-  const rb=D.budgets.find(b=>b.id==='rest');
+  const rb=D.budgets.filter(function(b){return b.id==='rest';})[0];
   const rLeft=rb?rb.limit-rb.spent:0;
-  const daily=(rb&&daysLeft>0)?`<div class="hero-daily">≈ ${rLeft<0?'0':fmt(rLeft/daysLeft)} €/Tag für „Rest" · ${daysLeft} Tage bis Monatsende</div>`:'';
+  const daily=(rb&&daysLeft>0)
+    ?'<div class="hero-daily">≈ '+(rLeft<0?'0':fmt(rLeft/daysLeft))+' €/Tag für „Rest" · '+daysLeft+' Tage bis Monatsende</div>':'';
 
-  document.getElementById('app').innerHTML=`
-    <section class="hero">
-      <div class="hero-label">${D.month} · noch im Budget</div>
-      <div class="hero-num ${cls}">${remain<0?'−'+fmt(-remain):fmt(remain)}<small> €</small></div>
-      <div class="hero-sub">${fmt(spent)} € von ${fmt(total)} € ausgegeben</div>
-      ${daily}
-    </section>
-    <div class="perf"></div>
-    <section class="rows">
-      ${D.budgets.map(b=>{
-        const pct=Math.min(b.spent/b.limit*100,100), over=b.spent>b.limit, warn=!over&&b.spent>b.limit*0.8;
-        return `<div class="row">
-          <div class="row-top"><div class="row-name">${b.name}</div>
-            <div class="row-nums"><b>${fmt(b.spent)}</b> / ${fmt(b.limit)} €</div></div>
-          <div class="bar"><div class="fill ${over?'over':warn?'warn':''}" style="width:${pct}%"></div></div>
-          <div class="row-foot">
-            <span class="${over?'st-over':warn?'st-warn':''}">${over?('+'+fmt(b.spent-b.limit)+' € drüber'):(fmt(b.limit-b.spent)+' € frei')}</span>
-            <span>${Math.round(b.spent/b.limit*100)}%</span></div>
-        </div>`;
-      }).join('')}
-    </section>
-    <div class="note">Kontodaten bis ${D.through}. Bar Bezahltes ist nicht enthalten.<br>Aktualisiert sich nach jedem CSV-Upload im Claude-Projekt.</div>`;
+  document.getElementById('app').innerHTML=
+    '<section class="hero"><div class="hero-label">'+D.month+' · noch im Budget</div>'
+    +'<div class="hero-num '+cls+'">'+(remain<0?'−'+fmt(-remain):fmt(remain))+'<small> €</small></div>'
+    +'<div class="hero-sub">'+fmt(spent)+' € von '+fmt(total)+' € ausgegeben</div>'+daily+'</section>'
+    +'<div class="perf"></div>'
+    +'<section class="rows">'+D.budgets.map(budgetRow).join('')+'</section>'
+    +((D.goals&&D.goals.length)
+      ?'<div class="perf"></div><div class="sect">Ziele</div><section class="rows">'
+        +D.goals.map(goalRow).join('')+'</section>':'')
+    +'<div class="note">Kontodaten bis '+D.through+'. Bar Bezahltes ist nicht enthalten.<br>'
+    +'Aktualisiert sich nach jedem CSV-Upload im Claude-Projekt.</div>';
 }
+
 fetch('./budget.json?t='+Date.now())
-  .then(r=>{ if(!r.ok) throw 0; return r.json(); })
+  .then(function(r){ if(!r.ok) throw 0; return r.json(); })
   .then(render)
-  .catch(()=>{ document.getElementById('app').innerHTML=
+  .catch(function(){ document.getElementById('app').innerHTML=
     '<div class="err">Budgets konnten nicht geladen werden.<br>Netz prüfen und neu öffnen.</div>'; });
 </script>
 </body>
