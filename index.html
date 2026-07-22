@@ -99,12 +99,13 @@ function render(D){
   const cls=remain<0?'over':(spent>total*0.85?'warn':'ok');
   document.getElementById('stand').textContent='Stand '+D.through;
 
+  const konto=(D.wealth&&typeof D.wealth.current==='number')?D.wealth.current:null;
   const p=D.through.split('.'), thruDay=+p[0], mon=+p[1], yr=+p[2];
   const dim=new Date(yr,mon,0).getDate();
   const daysLeft=Math.max(dim-thruDay,0);
   const rb=D.budgets.filter(function(b){return b.id==='rest';})[0];
   const rLeft=rb?rb.limit-rb.spent:0;
-  const daily=(rb&&daysLeft>0)
+  let daily=(rb&&daysLeft>0)
     ?'<div class="hero-daily">≈ '+(rLeft<0?'0':fmt(rLeft/daysLeft))+' €/Tag für „Rest" · '+daysLeft+' Tage bis Monatsende</div>':'';
 
   var debt='';
@@ -138,11 +139,21 @@ function render(D){
     var days=Math.floor(ageH/24);
     stale='<div class="stale">⚠︎ Daten sind <b>'+days+' Tag'+(days===1?'':'e')+'</b> alt (Stand '+D.through+').<br>Neuen Auszug ins Claude-Projekt laden.</div>';
   }
+  const capped=(konto!==null&&konto<remain&&remain>0);
+  const avail=capped?konto:remain;
+  const heroLabel=capped?(D.month+' · verfügbar (Konto begrenzt)'):(D.month+' · noch im Budget');
+  const heroCls=capped?(konto<50?'over':'warn'):cls;
+  const heroSub=capped
+    ?('Budget hätte noch '+fmt(remain)+' € frei · Konto deckt '+fmt(konto)+' €')
+    :(fmt(spent)+' € von '+fmt(total)+' € ausgegeben');
+  if(capped&&daysLeft>0){
+    daily='<div class="hero-daily">≈ '+fmt(avail/daysLeft)+' €/Tag bis Monatsende — bis Geld reinkommt</div>';
+  }
   document.getElementById('app').innerHTML=
     stale
-    +'<section class="hero"><div class="hero-label">'+D.month+' · noch im Budget</div>'
-    +'<div class="hero-num '+cls+'">'+(remain<0?'−'+fmt(-remain):fmt(remain))+'<small> €</small></div>'
-    +'<div class="hero-sub">'+fmt(spent)+' € von '+fmt(total)+' € ausgegeben</div>'+daily+'</section>'
+    +'<section class="hero"><div class="hero-label">'+heroLabel+'</div>'
+    +'<div class="hero-num '+heroCls+'">'+(avail<0?'−'+fmt(-avail):fmt(avail))+'<small> €</small></div>'
+    +'<div class="hero-sub">'+heroSub+'</div>'+daily+'</section>'
     +'<div class="perf"></div>'
     +'<section class="rows">'+D.budgets.map(budgetRow).join('')+'</section>'
     +((D.goals&&D.goals.length)
