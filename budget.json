@@ -32,15 +32,15 @@
  "goals": [
   {
    "id": "sparen",
-   "name": "Sparen (Trade Republic)",
-   "target": 300,
-   "done": -100.0
+   "name": "Sparen TR (ab Start)",
+   "target": 200,
+   "done": 0
   },
   {
    "id": "trinkgeld",
-   "name": "Trinkgeld eingezahlt",
+   "name": "Trinkgeld eingezahlt (ab Start)",
    "target": 1000,
-   "done": 170.0
+   "done": 0
   }
  ],
  "wealth": {
