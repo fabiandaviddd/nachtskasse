@@ -47,6 +47,9 @@
   .st-over{color:var(--over);font-weight:700} .st-warn{color:var(--warn)} .st-ok{color:var(--ok);font-weight:700}
   .note{text-align:center;font-size:.72rem;color:var(--faint);padding:18px 30px 0;line-height:1.5}
   .err{margin:40px 20px;text-align:center;color:var(--muted);font-size:.9rem;line-height:1.6}
+  .stale{margin:10px 12px 0;background:rgba(230,167,86,.12);border:1px solid var(--warn);
+    color:var(--warn);border-radius:12px;padding:11px 14px;font-size:.82rem;line-height:1.45;text-align:center}
+  .stale b{font-family:var(--num)}
   @media(prefers-reduced-motion:reduce){.fill{transition:none}}
 </style>
 </head>
@@ -128,8 +131,16 @@ function render(D){
       +'<div class="row-foot"><span class="'+dcls+'">'+(delta>=0?'+':'−')+fmt(Math.abs(delta))+' € seit Start</span>'
       +'<span>Ziel +'+fmt(w.pace)+' €/Monat</span></div></div></section>';
   }
+  var stale='';
+  var thruDate=new Date(yr,mon-1,thruDay,23,59);
+  var ageH=(Date.now()-thruDate.getTime())/36e5;
+  if(ageH>48){
+    var days=Math.floor(ageH/24);
+    stale='<div class="stale">⚠︎ Daten sind <b>'+days+' Tag'+(days===1?'':'e')+'</b> alt (Stand '+D.through+').<br>Neuen Auszug ins Claude-Projekt laden.</div>';
+  }
   document.getElementById('app').innerHTML=
-    '<section class="hero"><div class="hero-label">'+D.month+' · noch im Budget</div>'
+    stale
+    +'<section class="hero"><div class="hero-label">'+D.month+' · noch im Budget</div>'
     +'<div class="hero-num '+cls+'">'+(remain<0?'−'+fmt(-remain):fmt(remain))+'<small> €</small></div>'
     +'<div class="hero-sub">'+fmt(spent)+' € von '+fmt(total)+' € ausgegeben</div>'+daily+'</section>'
     +'<div class="perf"></div>'
