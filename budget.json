@@ -6,13 +6,13 @@
   {
    "id": "rest",
    "name": "Essen / Shopping / Rest",
-   "limit": 485,
+   "limit": 830,
    "spent": 124.12
   },
   {
    "id": "mob",
    "name": "Mobilität",
-   "limit": 115,
+   "limit": 150,
    "spent": 334.83
   },
   {
@@ -24,7 +24,7 @@
   {
    "id": "abo",
    "name": "Abos",
-   "limit": 100,
+   "limit": 150,
    "spent": 121.26,
    "hero": false
   }
@@ -42,5 +42,11 @@
    "target": 1000,
    "done": 170.0
   }
- ]
+ ],
+ "wealth": {
+  "since": "22.07.26",
+  "baseline": 113.23,
+  "current": 113.23,
+  "pace": 500
+ }
 }
