@@ -47,11 +47,13 @@
   .st-over{color:var(--over);font-weight:700} .st-warn{color:var(--warn)} .st-ok{color:var(--ok);font-weight:700}
   .note{text-align:center;font-size:.72rem;color:var(--faint);padding:18px 30px 0;line-height:1.5}
   .err{margin:40px 20px;text-align:center;color:var(--muted);font-size:.9rem;line-height:1.6}
-  .cd{margin:10px 12px 0;background:var(--surface);border:1px solid var(--line);color:var(--muted);
-    border-radius:12px;padding:10px 14px;font-size:.8rem;text-align:center}
-  .cd b{font-family:var(--num);color:var(--ink);font-variant-numeric:tabular-nums;font-size:.95rem}
-  .cd.due{background:rgba(230,167,86,.12);border-color:var(--warn);color:var(--warn)}
-  .cd.due b{color:var(--warn)}
+  .cd{margin:10px 12px 0;border-radius:12px;padding:10px 14px;font-size:.8rem;text-align:center;
+    transition:background .8s,border-color .8s,color .8s;
+    background:rgba(127,176,105,.10);border:1px solid var(--ok);color:var(--ok)}
+  .cd b{font-family:var(--num);font-variant-numeric:tabular-nums;font-size:.95rem;color:inherit}
+  .cd.warn{background:rgba(230,167,86,.10);border-color:var(--warn);color:var(--warn)}
+  .cd.over{background:rgba(228,87,46,.10);border-color:var(--over);color:var(--over)}
+  .cd.due{background:rgba(228,87,46,.16);border-color:var(--over);color:var(--over)}
   @media(prefers-reduced-motion:reduce){.fill{transition:none}}
 </style>
 </head>
@@ -170,7 +172,7 @@ function startCountdown(updatedAt){
     var diff=deadline-Date.now();
     if(diff>0){
       var h=Math.floor(diff/36e5), m=Math.floor(diff%36e5/6e4), s=Math.floor(diff%6e4/1e3);
-      el.className='cd';
+      el.className='cd'+(diff<4*36e5?' over':(diff<12*36e5?' warn':''));
       el.innerHTML='Nächste CSV in <b>'+pad(h)+':'+pad(m)+':'+pad(s)+'</b>';
     }else{
       var over=-diff, oh=Math.floor(over/36e5), om=Math.floor(over%36e5/6e4);
