@@ -37,12 +37,6 @@
    "done": 0
   },
   {
-   "id": "schulden",
-   "name": "Rückzahlung Sonja",
-   "target": 200,
-   "done": 0
-  },
-  {
    "id": "trinkgeld",
    "name": "Trinkgeld eingezahlt (ab Start)",
    "target": 1000,
@@ -54,5 +48,11 @@
   "baseline": 113.23,
   "current": 113.23,
   "pace": 500
+ },
+ "debt": {
+  "name": "Rückzahlung Sonja",
+  "total": 4500,
+  "paid": 0,
+  "rate": 200
  }
 }
