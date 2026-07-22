@@ -104,6 +104,17 @@ function render(D){
   const daily=(rb&&daysLeft>0)
     ?'<div class="hero-daily">≈ '+(rLeft<0?'0':fmt(rLeft/daysLeft))+' €/Tag für „Rest" · '+daysLeft+' Tage bis Monatsende</div>':'';
 
+  var wealth='';
+  if(D.wealth){
+    var w=D.wealth, delta=w.current-w.baseline;
+    var dcls=delta>=0?'st-ok':'st-over';
+    wealth='<div class="perf"></div><div class="sect">Vermögen · Start '+w.since+'</div>'
+      +'<section class="rows"><div class="row"><div class="row-top">'
+      +'<div class="row-name">Konto + TR seit Start</div>'
+      +'<div class="row-nums"><b>'+fmt(w.current)+'</b> €</div></div>'
+      +'<div class="row-foot"><span class="'+dcls+'">'+(delta>=0?'+':'−')+fmt(Math.abs(delta))+' € seit Start</span>'
+      +'<span>Ziel +'+fmt(w.pace)+' €/Monat</span></div></div></section>';
+  }
   document.getElementById('app').innerHTML=
     '<section class="hero"><div class="hero-label">'+D.month+' · noch im Budget</div>'
     +'<div class="hero-num '+cls+'">'+(remain<0?'−'+fmt(-remain):fmt(remain))+'<small> €</small></div>'
@@ -113,6 +124,7 @@ function render(D){
     +((D.goals&&D.goals.length)
       ?'<div class="perf"></div><div class="sect">Ziele</div><section class="rows">'
         +D.goals.map(goalRow).join('')+'</section>':'')
+    +wealth
     +'<div class="note">Kontodaten bis '+D.through+'. Bar Bezahltes ist nicht enthalten.<br>'
     +'Aktualisiert sich nach jedem CSV-Upload im Claude-Projekt.</div>';
 }
