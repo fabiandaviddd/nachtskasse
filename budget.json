@@ -34,7 +34,7 @@
    "id": "sparen",
    "name": "Sparen TR (ab Start)",
    "target": 200,
-   "done": -100.0
+   "done": 0.0
   },
   {
    "id": "trinkgeld",
@@ -55,5 +55,5 @@
   "paid": 0,
   "rate": 200
  },
- "updatedAt": "2026-07-23T09:14:01.245328+00:00"
+ "updatedAt": "2026-07-23T09:14:12.442369+00:00"
 }
