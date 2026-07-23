@@ -1,7 +1,7 @@
 {
- "updated": "2026-07-22",
+ "updated": "2026-07-23",
  "month": "Juli 2026",
- "through": "22.07.2026",
+ "through": "23.07.2026",
  "budgets": [
   {
    "id": "rest",
@@ -13,7 +13,7 @@
    "id": "mob",
    "name": "Mobilität",
    "limit": 150,
-   "spent": 334.83
+   "spent": 367.1
   },
   {
    "id": "tabak",
@@ -25,7 +25,7 @@
    "id": "abo",
    "name": "Abos",
    "limit": 150,
-   "spent": 121.26,
+   "spent": 126.24,
    "hero": false
   }
  ],
@@ -34,19 +34,19 @@
    "id": "sparen",
    "name": "Sparen TR (ab Start)",
    "target": 200,
-   "done": 0
+   "done": -100.0
   },
   {
    "id": "trinkgeld",
    "name": "Trinkgeld eingezahlt (ab Start)",
    "target": 1000,
-   "done": 0
+   "done": 0.0
   }
  ],
  "wealth": {
   "since": "22.07.26",
   "baseline": 113.23,
-  "current": 113.23,
+  "current": -24.02,
   "pace": 500
  },
  "debt": {
@@ -55,5 +55,5 @@
   "paid": 0,
   "rate": 200
  },
- "updatedAt": "2026-07-22T21:38:38.553054+00:00"
+ "updatedAt": "2026-07-23T09:14:01.245328+00:00"
 }
