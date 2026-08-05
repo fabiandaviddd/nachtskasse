@@ -1,13 +1,13 @@
 {
- "updated": "2026-08-05",
+ "updated": "2026-08-06",
  "month": "August 2026",
- "through": "05.08.2026",
+ "through": "06.08.2026",
  "budgets": [
   {
    "id": "rest",
    "name": "Essen / Shopping / Rest",
    "limit": 830,
-   "spent": 0
+   "spent": 48.72
   },
   {
    "id": "mob",
@@ -25,7 +25,7 @@
    "id": "abo",
    "name": "Abos",
    "limit": 150,
-   "spent": 12.99,
+   "spent": 17.97,
    "hero": false
   }
  ],
@@ -46,7 +46,7 @@
  "wealth": {
   "since": "22.07.26",
   "baseline": 113.23,
-  "current": 2449.33,
+  "current": 2395.63,
   "pace": 500
  },
  "debt": {
@@ -55,5 +55,5 @@
   "paid": 0,
   "rate": 200
  },
- "updatedAt": "2026-08-04T14:10:26.898681+00:00"
+ "updatedAt": "2026-08-05T10:36:10.889217+00:00"
 }
