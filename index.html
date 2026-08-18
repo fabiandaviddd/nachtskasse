@@ -182,7 +182,7 @@ function startCountdown(updatedAt){
   }
   tick(); setInterval(tick,1000);
 }
-fetch('./budget.json?t='+Date.now())
+fetch('https://raw.githubusercontent.com/fabiandaviddd/nachtskasse/main/budget.json?t='+Date.now())
   .then(function(r){ if(!r.ok) throw 0; return r.json(); })
   .then(function(D){ render(D); startCountdown(D.updatedAt); })
   .catch(function(){ document.getElementById('app').innerHTML=
