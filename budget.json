@@ -1,31 +1,31 @@
 {
- "updated": "2026-08-17",
- "month": "August 2026",
- "through": "17.08.2026",
+ "updated": "2026-09-02",
+ "month": "September 2026",
+ "through": "02.09.2026",
  "budgets": [
   {
    "id": "rest",
    "name": "Essen / Shopping / Rest",
    "limit": 830,
-   "spent": 418.05
+   "spent": 175.3
   },
   {
    "id": "mob",
    "name": "Mobilität",
    "limit": 150,
-   "spent": 196.56
+   "spent": 18.06
   },
   {
    "id": "tabak",
    "name": "Tabak / Terea",
    "limit": 360,
-   "spent": 86.9
+   "spent": 8.0
   },
   {
    "id": "abo",
    "name": "Abos",
    "limit": 150,
-   "spent": 62.59,
+   "spent": 0.0,
    "hero": false
   }
  ],
@@ -34,19 +34,19 @@
    "id": "sparen",
    "name": "Sparen TR (ab Start)",
    "target": 200,
-   "done": 200.0
+   "done": 0.0
   },
   {
    "id": "trinkgeld",
    "name": "Trinkgeld eingezahlt (ab Start)",
    "target": 1000,
-   "done": 400.0
+   "done": 0.0
   }
  ],
  "wealth": {
   "since": "22.07.26",
   "baseline": 113.23,
-  "current": 568.38,
+  "current": 48.23,
   "pace": 500
  },
  "debt": {
@@ -55,5 +55,5 @@
   "paid": 0,
   "rate": 200
  },
- "updatedAt": "2026-08-17T17:50:50.954461+00:00"
+ "updatedAt": "2026-09-02T14:58:22.629837+00:00"
 }
